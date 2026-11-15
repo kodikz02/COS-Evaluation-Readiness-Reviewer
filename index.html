@@ -708,6 +708,13 @@
       border: 1px solid #ccc;
     }
   }
+
+  #examScreen {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -758,17 +765,17 @@
           <div class="structure-item">
             <div class="part-tag green">Part 2</div>
             <div>
-              <h4>Specialized Track Exam (10 Questions)</h4>
+              <h4 id="specStructTitle">Specialized Track Exam (10–15 Questions)</h4>
               <p>Practical, scenario-based technical diagnostics tailored to your selected ICTMS role.</p>
             </div>
           </div>
           <div class="stats-row">
             <div class="stat-pill">
-              <div class="val">15</div>
+              <div class="val" id="statTotalItems">15–20</div>
               <div class="lbl">Total Items</div>
             </div>
             <div class="stat-pill amber">
-              <div class="val">25:00</div>
+              <div class="val" id="statTimeLimit">25–30m</div>
               <div class="lbl">Time Limit</div>
             </div>
             <div class="stat-pill teal">
@@ -882,790 +889,9 @@
 </footer>
 
 <script>
-const COMMON_CORE_QUESTIONS = [
-  {
-    id: "CORE-1",
-    question: "Under Republic Act No. 10173 (Data Privacy Act of 2012), within how many hours must a Personal Information Controller (PIC) notify the National Privacy Commission (NPC) and affected data subjects upon knowledge of a reportable personal data breach?",
-    options: [
-      "Within 24 hours",
-      "Within 72 hours",
-      "Within 5 working days",
-      "Within 15 calendar days"
-    ],
-    answer: 1,
-    explanation: "NPC Circular 16-03 mandates notification to the NPC and affected data subjects within 72 hours upon knowledge of or reasonable belief that a personal data breach has occurred."
-  },
-  {
-    id: "CORE-2",
-    question: "An employee receives an urgent email claiming to be from the Department IT Helpdesk asking them to click a link and re-enter their Active Directory credentials to prevent account suspension. What is the proper immediate action?",
-    options: [
-      "Click the link in Incognito mode to verify if the website looks official",
-      "Reply to the sender asking for their employee ID before logging in",
-      "Do not click any links, report the email to the InfoSec/Incident Response team, and delete it per protocol",
-      "Forward the email to all colleagues to warn them"
-    ],
-    answer: 2,
-    explanation: "Credential-harvesting phishing emails must never be clicked or forwarded widely. Reporting directly to InfoSec allows them to block the sender domain and purge the email across the agency."
-  },
-  {
-    id: "CORE-3",
-    question: "Which cybersecurity principle requires that every user, administrator, and system process be granted only the minimum level of access necessary to perform their authorized functions?",
-    options: [
-      "Security through Obscurity",
-      "Principle of Least Privilege (PoLP)",
-      "Non-Repudiation",
-      "Implicit Trust"
-    ],
-    answer: 1,
-    explanation: "The Principle of Least Privilege limits the blast radius of compromised accounts or accidental misconfigurations by restricting permissions strictly to job requirements."
-  },
-  {
-    id: "CORE-4",
-    question: "In IT Service Management (ITIL), what is the key difference between an 'Incident' and a 'Problem'?",
-    options: [
-      "An Incident affects VIPs only, while a Problem affects regular staff",
-      "An Incident is an unplanned interruption to a service, whereas a Problem is the underlying root cause of one or more incidents",
-      "An Incident requires procurement, whereas a Problem is fixed by rebooting",
-      "There is no difference; both terms are used interchangeably in SLA reports"
-    ],
-    answer: 1,
-    explanation: "Incident Management focuses on restoring normal service operation as quickly as possible, while Problem Management investigates and eliminates the root cause to prevent recurrence."
-  },
-  {
-    id: "CORE-5",
-    question: "When drafting Technical Specifications for government ICT procurement under RA 9184 (Government Procurement Reform Act), which practice is strictly prohibited?",
-    options: [
-      "Specifying minimum hardware benchmarks and warranty requirements",
-      "Referring to specific brand names or proprietary models tailored to favor a single supplier",
-      "Requiring ISO/IEC 27001 certification for cloud hosting providers",
-      "Including mandatory installation, knowledge transfer, and SLA terms"
-    ],
-    answer: 1,
-    explanation: "Section 18 of RA 9184 prohibits reference to brand names in technical specifications to ensure fair, competitive, and transparent public bidding."
-  }
-];
+const COMMON_CORE_QUESTIONS = [{"id": "CORE-1", "question": "Under Republic Act No. 10173 (Data Privacy Act of 2012), within how many hours must a Personal Information Controller (PIC) notify the National Privacy Commission (NPC) and affected data subjects upon knowledge of a reportable personal data breach?", "options": ["Within 24 hours", "Within 72 hours", "Within 5 working days", "Within 15 calendar days"], "answer": 1, "explanation": "NPC Circular 16-03 mandates notification to the NPC and affected data subjects within 72 hours upon knowledge of or reasonable belief that a personal data breach has occurred."}, {"id": "CORE-2", "question": "An employee receives an urgent email claiming to be from the Department IT Helpdesk asking them to click a link and re-enter their Active Directory credentials to prevent account suspension. What is the proper immediate action?", "options": ["Click the link in Incognito mode to verify if the website looks official", "Reply to the sender asking for their employee ID before logging in", "Do not click any links, report the email to the InfoSec/Incident Response team, and delete it per protocol", "Forward the email to all colleagues to warn them"], "answer": 2, "explanation": "Credential-harvesting phishing emails must never be clicked or forwarded widely. Reporting directly to InfoSec allows them to block the sender domain and purge the email across the agency."}, {"id": "CORE-3", "question": "Which cybersecurity principle requires that every user, administrator, and system process be granted only the minimum level of access necessary to perform their authorized functions?", "options": ["Security through Obscurity", "Principle of Least Privilege (PoLP)", "Non-Repudiation", "Implicit Trust"], "answer": 1, "explanation": "The Principle of Least Privilege limits the blast radius of compromised accounts or accidental misconfigurations by restricting permissions strictly to job requirements."}, {"id": "CORE-4", "question": "In IT Service Management (ITIL), what is the key difference between an 'Incident' and a 'Problem'?", "options": ["An Incident affects VIPs only, while a Problem affects regular staff", "An Incident is an unplanned interruption to a service, whereas a Problem is the underlying root cause of one or more incidents", "An Incident requires procurement, whereas a Problem is fixed by rebooting", "There is no difference; both terms are used interchangeably in SLA reports"], "answer": 1, "explanation": "Incident Management focuses on restoring normal service operation as quickly as possible, while Problem Management investigates and eliminates the root cause to prevent recurrence."}, {"id": "CORE-5", "question": "When drafting Technical Specifications for government ICT procurement under RA 9184 (Government Procurement Reform Act), which practice is strictly prohibited?", "options": ["Specifying minimum hardware benchmarks and warranty requirements", "Referring to specific brand names or proprietary models tailored to favor a single supplier", "Requiring ISO/IEC 27001 certification for cloud hosting providers", "Including mandatory installation, knowledge transfer, and SLA terms"], "answer": 1, "explanation": "Section 18 of RA 9184 prohibits reference to brand names in technical specifications to ensure fair, competitive, and transparent public bidding."}];
 
-const TRACKS = [
-  {
-    id: "helpdesk",
-    title: "Helpdesk & Technical Support",
-    code: "SUP",
-    description: "End-user troubleshooting, OS/M365 diagnostics, ticketing triage, and peripheral setup.",
-    questions: [
-      {
-        id: "SUP-1",
-        question: "A user reports they cannot access internal intranet sites by hostname, but can successfully ping the server IP address. Running 'ipconfig /all' shows a valid IP and gateway. What command should you run first to resolve a stale local DNS cache?",
-        options: ["ipconfig /release", "ipconfig /flushdns", "netsh winsock reset", "chkdsk /f"],
-        answer: 1,
-        explanation: "Flushing the local DNS resolver cache clears outdated or corrupted DNS entries when IP connectivity works but hostname resolution fails."
-      },
-      {
-        id: "SUP-2",
-        question: "Four tickets arrive simultaneously at 8:30 AM. Based on standard ITIL impact-urgency triage, which ticket should be prioritized first?",
-        options: [
-          "A director requesting Adobe Acrobat Pro installation for next week's review",
-          "An entire division (40+ users) unable to access the shared financial system during payroll cutoff",
-          "A single user requesting a replacement ergonomic mouse",
-          "A newly hired COS staff needing a secondary monitor setup"
-        ],
-        answer: 1,
-        explanation: "High business impact (40+ users blocked) combined with immediate urgency (payroll cutoff) makes this a Priority 1 (Critical) incident."
-      },
-      {
-        id: "SUP-3",
-        question: "A Windows workstation displays an IP address of 169.254.112.45 and has no internet or LAN access. What does this APIPA address indicate?",
-        options: [
-          "The PC is connected to a high-speed fiber VLAN",
-          "The workstation failed to reach a DHCP server to obtain a valid IP lease",
-          "The workstation has a duplicate static IP conflict",
-          "Windows Firewall is blocking outbound HTTPS traffic"
-        ],
-        answer: 1,
-        explanation: "Automatic Private IP Addressing (169.254.0.0/16) is self-assigned by Windows when DHCP discovery fails due to a disconnected cable, wrong VLAN, or down DHCP service."
-      },
-      {
-        id: "SUP-4",
-        question: "A user's print jobs are stuck in the Windows print queue and cannot be cancelled normally. What is the cleanest way to clear the stuck spooler?",
-        options: [
-          "Reinstall Windows OS",
-          "Stop the 'Print Spooler' service, delete files inside C:\Windows\System32\spool\PRINTERS, and restart the service",
-          "Unplug the office router for 10 minutes",
-          "Change the user's Active Directory password"
-        ],
-        answer: 1,
-        explanation: "Stopping the spooler service unlocks the stuck .spl/.shd files in the PRINTERS folder so they can be purged cleanly without rebooting."
-      },
-      {
-        id: "SUP-5",
-        question: "When providing remote desktop assistance to an employee handling confidential HR records, what is mandatory before initiating screen control?",
-        options: [
-          "Connect silently in the background so as not to disturb them",
-          "Obtain explicit user consent and ask them to close/minimize confidential documents not related to the issue",
-          "Ask the user to share their password via chat",
-          "Disable endpoint antivirus before connecting"
-        ],
-        answer: 1,
-        explanation: "Explicit user authorization and data minimization protect sensitive personal information in compliance with RA 10173."
-      },
-      {
-        id: "SUP-6",
-        question: "An employee's laptop shows 100% Disk usage in Task Manager immediately after boot, making applications unresponsive. Which step is most effective for initial diagnosis?",
-        options: [
-          "Identify the specific process consuming Disk I/O in Resource Monitor and check SMART drive health / pending Windows Updates",
-          "Format the hard drive immediately",
-          "Replace the laptop battery",
-          "Disable the network adapter"
-        ],
-        answer: 0,
-        explanation: "Checking Resource Monitor pinpoints whether SysMain, Windows Update, antivirus scans, or a failing HDD/SSD is causing the I/O bottleneck."
-      },
-      {
-        id: "SUP-7",
-        question: "A user receives an Outlook error: 'The file cannot be accessed because it is in use by another process' when opening their local archive (.pst). What is the typical cause?",
-        options: [
-          "The PST file is stored on a synced OneDrive folder or an orphaned OUTLOOK.EXE process is still running in the background",
-          "The monitor refresh rate is set too high",
-          "The keyboard layout is set to UK English",
-          "The CMOS battery is dead"
-        ],
-        answer: 0,
-        explanation: "OneDrive file locking or a hung background Outlook process frequently locks local PST files."
-      },
-      {
-        id: "SUP-8",
-        question: "Which Windows command-line utility scans and repairs corrupted Windows system files using a cached local component store?",
-        options: ["sfc /scannow", "ping -t", "net user", "gpresult /r"],
-        answer: 0,
-        explanation: "System File Checker (sfc /scannow) verifies the integrity of protected Windows system files and replaces corrupted versions."
-      },
-      {
-        id: "SUP-9",
-        question: "A newly deployed network printer is reachable via ping, and drivers are installed, but print jobs fail. You notice the printer's IP changed after a power outage. How do you prevent this permanently?",
-        options: [
-          "Reinstall the printer driver every morning",
-          "Configure a DHCP reservation (MAC binding) or assign a static IP outside the DHCP pool",
-          "Connect the printer via Bluetooth",
-          "Disable IPv4 on the print server"
-        ],
-        answer: 1,
-        explanation: "Assigning a DHCP reservation or static IP guarantees consistent addressing for network printers."
-      },
-      {
-        id: "SUP-10",
-        question: "What should always be documented before closing a resolved Helpdesk ticket?",
-        options: [
-          "Only the word 'Fixed'",
-          "Root cause identified, exact troubleshooting steps performed, and user confirmation that service is restored",
-          "The user's plain-text password for future reference",
-          "Nothing, closing the ticket is sufficient"
-        ],
-        answer: 1,
-        explanation: "Thorough resolution notes build the internal knowledge base and provide an audit trail for SLA compliance."
-      }
-    ]
-  },
-  {
-    id: "network",
-    title: "Network, Infra & Comms",
-    code: "NET",
-    description: "Subnetting, VLANs, routing/switching, wireless infrastructure, and cabling diagnostics.",
-    questions: [
-      {
-        id: "NET-1",
-        question: "You need to subnet 192.168.10.0/24 into smaller networks that can each accommodate at least 28 usable host IP addresses. Which subnet mask should you use?",
-        options: ["/26 (255.255.255.192)", "/27 (255.255.255.224)", "/28 (255.255.255.240)", "/29 (255.255.255.248)"],
-        answer: 1,
-        explanation: "A /27 subnet provides 32 total IPs (30 usable hosts), satisfying the 28-host requirement while maximizing subnet count. A /28 only gives 14 usable hosts."
-      },
-      {
-        id: "NET-2",
-        question: "Two hosts connected to the same Layer 2 switch are assigned to VLAN 10 and VLAN 20 respectively. They cannot ping each other. What network device or feature is required for them to communicate?",
-        options: [
-          "A crossover Ethernet cable between two switch ports",
-          "A Layer 3 routing device (Router-on-a-Stick or Layer 3 SVI) configured for Inter-VLAN routing",
-          "Enabling Spanning Tree Protocol (STP)",
-          "Increasing the MTU size to 9000"
-        ],
-        answer: 1,
-        explanation: "VLANs isolate broadcast domains at Layer 2; traffic between different VLANs must be routed at Layer 3."
-      },
-      {
-        id: "NET-3",
-        question: "Review the traceroute output below from a workstation (10.10.5.25) trying to reach an agency cloud server (203.177.45.10). Where is the connectivity failing?",
-        snippet: "1   <1 ms   <1 ms   <1 ms  10.10.5.1
-2    2 ms    2 ms    3 ms  172.16.0.1
-3    *       *       *     Request timed out.
-4    *       *       *     Request timed out.",
-        options: [
-          "The workstation's local NIC is disconnected",
-          "The local default gateway (10.10.5.1) is down",
-          "Traffic reaches the internal core/edge router (172.16.0.1) but is dropped or unrouted beyond Hop 2 (ISP/Firewall)",
-          "DNS resolution failed on the workstation"
-        ],
-        answer: 2,
-        explanation: "Hops 1 and 2 respond with low latency, proving LAN and internal gateway health; timeouts starting at Hop 3 point to the ISP link or edge firewall policy."
-      },
-      {
-        id: "NET-4",
-        question: "What is the primary purpose of an 802.1Q trunk port between two managed switches?",
-        options: [
-          "To double the physical bandwidth using PoE",
-          "To carry traffic for multiple VLANs simultaneously over a single physical link using VLAN tags",
-          "To block all broadcast traffic automatically",
-          "To convert single-mode fiber to multimode fiber"
-        ],
-        answer: 1,
-        explanation: "IEEE 802.1Q inserts a 4-byte VLAN tag into Ethernet frames so multiple VLANs can traverse an uplink between switches."
-      },
-      {
-        id: "NET-5",
-        question: "A technician accidentally connects both ends of a patch cable into two access ports on the same unmanaged switch, causing severe network slowdown and blinking LEDs across all ports. What occurred?",
-        options: [
-          "A Layer 2 switching loop causing a broadcast storm",
-          "BGP route flapping",
-          "DHCP pool exhaustion",
-          "ARP spoofing attack"
-        ],
-        answer: 0,
-        explanation: "Without STP enabled, a physical loop causes Ethernet broadcast frames to circulate endlessly, saturating switch CPU and link bandwidth."
-      },
-      {
-        id: "NET-6",
-        question: "In structured cabling, what is the maximum recommended horizontal channel length for standard Cat6 Ethernet copper cabling to maintain full 1 Gbps / 10 Gbps performance?",
-        options: ["50 meters", "100 meters (90m permanent link + 10m patch cords)", "300 meters", "550 meters"],
-        answer: 1,
-        explanation: "TIA/EIA-568 standards specify 100 meters total channel length for twisted-pair copper before signal attenuation causes packet loss."
-      },
-      {
-        id: "NET-7",
-        question: "When deploying enterprise Wi-Fi Access Points in the 2.4 GHz band, which three channels should be used to avoid co-channel overlap?",
-        options: ["Channels 1, 2, and 3", "Channels 1, 6, and 11", "Channels 3, 7, and 10", "Channels 2, 5, and 8"],
-        answer: 1,
-        explanation: "Channels 1, 6, and 11 are the only non-overlapping 20 MHz channels in the 2.4 GHz spectrum."
-      },
-      {
-        id: "NET-8",
-        question: "Which protocol dynamically assigns IP addresses, subnet masks, default gateways, and DNS servers to client devices?",
-        options: ["SNMP", "DHCP", "ICMP", "NTP"],
-        answer: 1,
-        explanation: "Dynamic Host Configuration Protocol (DHCP) automates IP configuration via the DORA (Discover, Offer, Request, Acknowledge) process."
-      },
-      {
-        id: "NET-9",
-        question: "You are connecting two buildings located 450 meters apart across a government compound. Which cabling medium is the appropriate engineering choice?",
-        options: [
-          "Unshielded Cat5e copper cable",
-          "Single-mode or Multimode Fiber Optic cable",
-          "Coaxial RG-6 cable",
-          "USB 3.0 active repeater cable"
-        ],
-        answer: 1,
-        explanation: "Copper Ethernet is limited to 100 meters; fiber optic cable easily spans 450+ meters with immunity to electromagnetic interference."
-      },
-      {
-        id: "NET-10",
-        question: "Which command on a Cisco-style switch displays the mapping between MAC addresses, VLANs, and physical switch ports?",
-        options: ["show ip route", "show mac address-table", "show version", "show ntp status"],
-        answer: 1,
-        explanation: "The MAC address table (CAM table) identifies which physical interface a specific device MAC address is learned on."
-      }
-    ]
-  },
-  {
-    id: "firewall",
-    title: "Firewall & Information Security",
-    code: "SEC",
-    description: "Firewall rules, NAT/VPN, log analysis, vulnerability management, and incident response.",
-    questions: [
-      {
-        id: "SEC-1",
-        question: "Analyze the firewall traffic log below. What type of activity is occurring from source IP 185.220.101.4?",
-        snippet: "2026-11-10 02:14:01 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=22 ACTION=DROP
-2026-11-10 02:14:02 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=23 ACTION=DROP
-2026-11-10 02:14:03 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=3389 ACTION=DROP
-2026-11-10 02:14:04 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=445 ACTION=DROP",
-        options: [
-          "Normal web browsing traffic",
-          "Automated external port reconnaissance probing common remote management/SMB ports (SSH, Telnet, RDP, SMB)",
-          "Internal backup replication",
-          "NTP time synchronization"
-        ],
-        answer: 1,
-        explanation: "Sequential connection attempts across ports 22, 23, 3389, and 445 indicate automated port scanning for exposed management services."
-      },
-      {
-        id: "SEC-2",
-        question: "How does a 'Stateful' firewall differ from a traditional 'Stateless' packet filter?",
-        options: [
-          "Stateful firewalls only inspect Layer 1 electrical signals",
-          "Stateful firewalls track active connection states in a state table and automatically permit legitimate return traffic",
-          "Stateless firewalls block all encrypted HTTPS traffic",
-          "Stateful firewalls do not require access control rules"
-        ],
-        answer: 1,
-        explanation: "Stateful inspection tracks TCP/UDP session states, eliminating the need to write broad inbound rules for ephemeral return ports."
-      },
-      {
-        id: "SEC-3",
-        question: "You need to connect the ICTMS Central Office firewall to a Regional Office firewall securely over the public internet so internal subnets can communicate seamlessly. Which VPN technology is standard?",
-        options: [
-          "Site-to-Site IPsec VPN",
-          "PPTP VPN without encryption",
-          "Public HTTP proxy",
-          "Telnet tunnel"
-        ],
-        answer: 0,
-        explanation: "Site-to-Site IPsec VPN establishes an encrypted tunnel between gateway firewalls to connect branch LANs securely."
-      },
-      {
-        id: "SEC-4",
-        question: "Why should a public-facing web server be placed inside a DMZ (Demilitarized Zone) rather than directly inside the internal LAN?",
-        options: [
-          "To give the web server faster internet speeds",
-          "To isolate public-facing services so that if the web server is compromised, attackers cannot directly pivot to internal databases and workstations",
-          "Because firewalls cannot route traffic to internal LANs",
-          "To bypass SSL/TLS certificate requirements"
-        ],
-        answer: 1,
-        explanation: "A DMZ acts as a segmented buffer zone with strict firewall rules restricting traffic between the DMZ and the trusted internal network."
-      },
-      {
-        id: "SEC-5",
-        question: "Which security mechanism translates multiple private internal IP addresses (e.g., 10.0.0.0/24) into a single public IP address using unique source port numbers?",
-        options: [
-          "Static 1:1 NAT",
-          "PAT (Port Address Translation / NAT Overload)",
-          "DNSSEC",
-          "ARP Inspection"
-        ],
-        answer: 1,
-        explanation: "PAT maps multiple private hosts to one public IP by tracking unique source TCP/UDP port numbers in the translation table."
-      },
-      {
-        id: "SEC-6",
-        question: "According to the NIST Incident Response Lifecycle, what is the correct sequence of phases when handling a confirmed malware outbreak?",
-        options: [
-          "Eradication -> Preparation -> Detection -> Recovery",
-          "Preparation -> Detection & Analysis -> Containment, Eradication & Recovery -> Post-Incident Activity",
-          "Recovery -> Containment -> Lessons Learned -> Detection",
-          "Detection -> Public Press Release -> Reformatting"
-        ],
-        answer: 1,
-        explanation: "NIST SP 800-61 defines Preparation, Detection & Analysis, Containment/Eradication/Recovery, and Post-Incident Activity."
-      },
-      {
-        id: "SEC-7",
-        question: "What is the key operational difference between an IDS (Intrusion Detection System) and an IPS (Intrusion Prevention System)?",
-        options: [
-          "IDS is passive and generates alerts, whereas IPS sits inline and can actively block/drop malicious traffic in real time",
-          "IDS encrypts hard drives, while IPS manages passwords",
-          "IDS works only on Wi-Fi, while IPS works only on fiber",
-          "There is no difference"
-        ],
-        answer: 0,
-        explanation: "An IPS is deployed inline with traffic flow so it can drop malicious packets or reset connections immediately upon signature/anomaly match."
-      },
-      {
-        id: "SEC-8",
-        question: "In firewall rule ordering (top-down evaluation), where should the explicit 'Deny All / Implicit Cleanup' rule be placed?",
-        options: [
-          "At the very top (Rule #1)",
-          "At the very bottom of the rulebase after all specific Permit rules",
-          "Between internal LAN rules and VPN rules",
-          "It is not needed on modern firewalls"
-        ],
-        answer: 1,
-        explanation: "Firewalls evaluate rules sequentially from top to bottom; placing Deny All at the bottom ensures any traffic not explicitly permitted is dropped and logged."
-      },
-      {
-        id: "SEC-9",
-        question: "An internal workstation is observed making repeated DNS queries to randomly generated, nonsensical domain names (e.g., xk92jf81m.biz) every 30 seconds. What does this behavior strongly indicate?",
-        options: [
-          "Normal Windows Update behavior",
-          "Malware using a Domain Generation Algorithm (DGA) to contact a Command-and-Control (C2) server",
-          "A misconfigured network printer",
-          "NTP clock drift"
-        ],
-        answer: 1,
-        explanation: "DGAs generate pseudo-random domains so infected hosts can locate C2 infrastructure even when static domains are sinkholed."
-      },
-      {
-        id: "SEC-10",
-        question: "Which security control adds an extra layer of verification beyond username and password for administrative VPN and firewall logins?",
-        options: [
-          "Multi-Factor Authentication (MFA)",
-          "Split Tunneling",
-          "MAC Address Cloning",
-          "HTTP Basic Auth"
-        ],
-        answer: 0,
-        explanation: "MFA protects privileged remote access even if a user's password is compromised via phishing or credential stuffing."
-      }
-    ]
-  },
-  {
-    id: "servers",
-    title: "Servers & Systems Administration",
-    code: "SYS",
-    description: "Active Directory, Group Policy, Windows/Linux server ops, virtualization, and backups.",
-    questions: [
-      {
-        id: "SYS-1",
-        question: "In Windows Active Directory, what is the standard evaluation order of Group Policy Objects (GPOs)?",
-        options: [
-          "OU -> Domain -> Site -> Local",
-          "Local -> Site -> Domain -> Organizational Unit (LSDOU)",
-          "Domain -> Local -> OU -> Site",
-          "Site -> OU -> Local -> Domain"
-        ],
-        answer: 1,
-        explanation: "GPOs process in LSDOU order (Local, Site, Domain, OU), meaning the policy closest to the object (OU) overrides earlier conflicting settings unless 'Enforced' is set."
-      },
-      {
-        id: "SYS-2",
-        question: "A Linux web server is unresponsive. Running 'df -h' shows /var/log is at 100% capacity, while 'df -i' shows inodes are at 15%. What is the immediate cause?",
-        options: [
-          "RAM is completely exhausted",
-          "Unrotated or runaway log files have consumed all available disk blocks on the partition",
-          "The CPU thermal throttled",
-          "The kernel panicked due to NIC driver failure"
-        ],
-        answer: 1,
-        explanation: "100% block usage in /var/log prevents services and databases from writing temporary/lock files, stalling applications."
-      },
-      {
-        id: "SYS-3",
-        question: "Explain the '3-2-1 Backup Rule' recommended for critical agency servers and databases.",
-        options: [
-          "3 backup admins, 2 servers, 1 password",
-          "3 copies of data, stored on 2 different storage media types, with 1 copy kept off-site / air-gapped",
-          "Backup every 3 hours, 2 days a week, 1 month retention",
-          "3 incremental backups followed by 2 full backups and 1 differential"
-        ],
-        answer: 1,
-        explanation: "The 3-2-1 rule protects against single-device failure, local site disasters, and ransomware encryption."
-      },
-      {
-        id: "SYS-4",
-        question: "Which Linux command checks the current running status and recent journal logs of the Nginx web service?",
-        options: ["systemctl status nginx", "chmod 777 nginx", "fdisk -l nginx", "netstat -r"],
-        answer: 0,
-        explanation: "'systemctl status <service>' displays whether a systemd unit is active, failed, its PID, and recent log lines."
-      },
-      {
-        id: "SYS-5",
-        question: "In a virtualized environment (VMware/Hyper-V/Proxmox), why is it bad practice to leave VM snapshots running for several months in production?",
-        options: [
-          "Snapshots disable the VM's network card",
-          "Delta disk files grow continuously, degrading disk I/O performance and risking datastore exhaustion",
-          "Snapshots automatically delete user accounts",
-          "Snapshots convert 64-bit VMs to 32-bit"
-        ],
-        answer: 1,
-        explanation: "VM snapshots are short-term point-in-time states for patching/upgrades; long-lived delta chains severely impact storage performance and consolidation."
-      },
-      {
-        id: "SYS-6",
-        question: "You modified a Group Policy Object (GPO) in Active Directory and want a Windows client workstation to apply the computer policy immediately without rebooting. Which command do you run?",
-        options: ["gpupdate /force", "ipconfig /renew", "netsh int ip reset", "dism /online"],
-        answer: 0,
-        explanation: "'gpupdate /force' forces an immediate refresh of all Computer and User Group Policy settings."
-      },
-      {
-        id: "SYS-7",
-        question: "What is the key difference between a 'Differential' backup and an 'Incremental' backup?",
-        options: [
-          "Differential backs up all changes since the last Full backup; Incremental backs up only changes since the last backup of any type",
-          "Incremental is slower to create than Differential",
-          "Differential does not require a Full backup first",
-          "They are identical in storage and restore speed"
-        ],
-        answer: 0,
-        explanation: "Differential backups require only the last Full + latest Differential to restore, whereas Incremental requires the Full + every subsequent Incremental in the chain."
-      },
-      {
-        id: "SYS-8",
-        question: "In Active Directory, what FSMO role is responsible for maintaining time synchronization across the domain and handling urgent password changes?",
-        options: ["Schema Master", "PDC Emulator", "RID Master", "Infrastructure Master"],
-        answer: 1,
-        explanation: "The PDC Emulator serves as the authoritative time source in the domain (critical for Kerberos authentication) and receives immediate password updates."
-      },
-      {
-        id: "SYS-9",
-        question: "Which RAID level provides disk mirroring (fault tolerance for 1 drive failure) with no parity calculation overhead, requiring a minimum of 2 disks?",
-        options: ["RAID 0", "RAID 1", "RAID 5", "RAID 6"],
-        answer: 1,
-        explanation: "RAID 1 writes identical data to two drives simultaneously, ensuring high read speed and immediate failover if one drive fails."
-      },
-      {
-        id: "SYS-10",
-        question: "Which Linux command changes file permissions so that only the owner can read/write (600) an SSH private key file?",
-        options: ["chmod 600 id_rsa", "chmod 777 id_rsa", "chown root id_rsa", "ls -la id_rsa"],
-        answer: 0,
-        explanation: "SSH refuses to use private keys that are readable by group or other users; chmod 600 restricts read/write strictly to the file owner."
-      }
-    ]
-  },
-  {
-    id: "database",
-    title: "Database Administration (DBA)",
-    code: "DBA",
-    description: "SQL queries, normalization, indexing, ACID transactions, and backup/recovery.",
-    questions: [
-      {
-        id: "DBA-1",
-        question: "Review the SQL query below. What will it return?",
-        snippet: "SELECT d.dept_name, COUNT(e.emp_id) AS total_cos
-FROM departments d
-LEFT JOIN employees e ON d.dept_id = e.dept_id
-GROUP BY d.dept_name
-HAVING COUNT(e.emp_id) = 0;",
-        options: [
-          "All departments that have at least 1 employee",
-          "Only departments that currently have zero assigned employees",
-          "A syntax error because HAVING cannot use COUNT()",
-          "The total number of employees across all departments"
-        ],
-        answer: 1,
-        explanation: "LEFT JOIN preserves all departments even without matching employees, and HAVING COUNT(e.emp_id) = 0 filters strictly for empty departments."
-      },
-      {
-        id: "DBA-2",
-        question: "What is the primary difference between a 'WHERE' clause and a 'HAVING' clause in SQL?",
-        options: [
-          "WHERE filters rows before aggregation (GROUP BY), whereas HAVING filters grouped results after aggregation",
-          "HAVING can only be used with DELETE statements",
-          "WHERE is used for numbers and HAVING is used for text",
-          "They are completely interchangeable"
-        ],
-        answer: 0,
-        explanation: "WHERE operates on individual rows prior to grouping, while HAVING filters aggregated groups produced by GROUP BY."
-      },
-      {
-        id: "DBA-3",
-        question: "In database normalization, what requirement defines Third Normal Form (3NF)?",
-        options: [
-          "All tables must have at least 3 columns",
-          "The table is in 2NF and has no transitive dependencies (non-key attributes depend only on the primary key)",
-          "All foreign keys are removed",
-          "Data is denormalized into a single flat table for reporting"
-        ],
-        answer: 1,
-        explanation: "3NF eliminates transitive dependencies so non-prime attributes depend solely on the primary key, preventing update anomalies."
-      },
-      {
-        id: "DBA-4",
-        question: "What does the 'A' (Atomicity) in ACID database transaction properties guarantee?",
-        options: [
-          "All SQL queries run automatically every hour",
-          "A transaction is treated as an all-or-nothing unit; either all operations commit or all roll back on failure",
-          "Database tables are compressed automatically",
-          "Only administrators can run SELECT queries"
-        ],
-        answer: 1,
-        explanation: "Atomicity prevents partial updates (e.g., debiting one account without crediting the destination) if an error or power failure occurs mid-transaction."
-      },
-      {
-        id: "DBA-5",
-        question: "A reporting query filtering on 'employee_status' and 'hire_date' takes 18 seconds on a 5-million-row table. What is the first optimization step a DBA should evaluate?",
-        options: [
-          "Delete half of the historical records",
-          "Inspect the execution plan (EXPLAIN) and create a composite index on (employee_status, hire_date)",
-          "Convert all VARCHAR columns to TEXT/BLOB",
-          "Restart the database server every hour"
-        ],
-        answer: 1,
-        explanation: "Analyzing the execution plan identifies full table scans, and an appropriate index allows rapid B-tree index seeks."
-      },
-      {
-        id: "DBA-6",
-        question: "What is the key operational difference between 'DELETE FROM audit_logs' and 'TRUNCATE TABLE audit_logs'?",
-        options: [
-          "TRUNCATE removes all rows rapidly with minimal transaction log overhead and resets identity counters, while DELETE logs each row removal and allows a WHERE clause",
-          "DELETE drops the table structure permanently",
-          "TRUNCATE can be filtered using a WHERE clause",
-          "There is no difference"
-        ],
-        answer: 0,
-        explanation: "TRUNCATE is a DDL operation that deallocates data pages quickly, whereas DELETE is a row-by-row DML operation."
-      },
-      {
-        id: "DBA-7",
-        question: "Why is creating indexes on every single column of a heavily written transactional table discouraged?",
-        options: [
-          "Indexes slow down SELECT queries",
-          "Every INSERT, UPDATE, and DELETE must also update all associated indexes, increasing write latency and disk usage",
-          "Databases only allow 2 indexes per database",
-          "Indexes disable foreign key constraints"
-        ],
-        answer: 1,
-        explanation: "Indexes accelerate reads at the expense of additional I/O overhead during write operations."
-      },
-      {
-        id: "DBA-8",
-        question: "Which backup strategy allows a DBA to restore a production database to a specific minute (e.g., 10:42 AM right before an accidental data wipe)?",
-        options: [
-          "Point-in-Time Recovery (PITR) using a Full backup combined with Transaction Log / WAL backups",
-          "Weekly CSV exports only",
-          "Copying the database folder while the service is running",
-          "Taking a screenshot of the schema"
-        ],
-        answer: 0,
-        explanation: "Replaying transaction logs (Write-Ahead Logs) on top of a base full backup enables exact Point-in-Time Recovery."
-      },
-      {
-        id: "DBA-9",
-        question: "What is a database 'Deadlock'?",
-        options: [
-          "When the database password expires",
-          "When two or more transactions permanently block each other because each holds a lock the other needs to proceed",
-          "When disk space reaches 50%",
-          "When a table has no primary key"
-        ],
-        answer: 1,
-        explanation: "Database engines detect deadlocks and automatically terminate/rollback one victim transaction so the other can complete."
-      },
-      {
-        id: "DBA-10",
-        question: "Which SQL constraint ensures that every value in a child table's column matches an existing value in a parent table's primary key?",
-        options: ["UNIQUE", "FOREIGN KEY", "CHECK", "DEFAULT"],
-        answer: 1,
-        explanation: "Foreign Key constraints enforce referential integrity between related tables."
-      }
-    ]
-  },
-  {
-    id: "developers",
-    title: "Information Systems & Developers",
-    code: "DEV",
-    description: "API design, secure coding (OWASP), Git workflows, debugging, and web architecture.",
-    questions: [
-      {
-        id: "DEV-1",
-        question: "Identify the critical security vulnerability in the backend PHP/SQL snippet below:",
-        snippet: "$userId = $_GET['id'];
-$query = "SELECT * FROM cos_profiles WHERE id = " . $userId;
-$result = mysqli_query($conn, $query);",
-        options: [
-          "Cross-Site Request Forgery (CSRF)",
-          "SQL Injection (SQLi) due to direct concatenation of unsanitized user input into a SQL query",
-          "Buffer Overflow",
-          "Insecure Direct Object Reference (IDOR) only"
-        ],
-        answer: 1,
-        explanation: "Concatenating $_GET['id'] directly allows an attacker to inject arbitrary SQL commands. Prepared statements with parameterized queries must be used."
-      },
-      {
-        id: "DEV-2",
-        question: "Which HTTP status code should a RESTful API return when a client submits invalid form fields (e.g., missing required email or malformed date)?",
-        options: [
-          "200 OK",
-          "400 Bad Request (or 422 Unprocessable Entity)",
-          "500 Internal Server Error",
-          "301 Moved Permanently"
-        ],
-        answer: 1,
-        explanation: "4xx status codes indicate client-side request/validation errors, whereas 500 indicates an unhandled server exception."
-      },
-      {
-        id: "DEV-3",
-        question: "When storing user passwords in an agency information system database, which approach is considered secure industry standard?",
-        options: [
-          "Encrypting passwords with AES-256 using a hardcoded key",
-          "Hashing passwords using a slow, salted adaptive algorithm such as bcrypt or Argon2id",
-          "Hashing passwords with unsalted MD5 or SHA-1",
-          "Encoding passwords in Base64"
-        ],
-        answer: 1,
-        explanation: "Passwords must be one-way hashed with unique per-user salts using memory-hard/adaptive algorithms like Argon2id or bcrypt."
-      },
-      {
-        id: "DEV-4",
-        question: "A developer accidentally committed a '.env' file containing production database credentials to a Git repository. What is the proper remediation?",
-        options: [
-          "Delete the .env file in a new commit and push",
-          "Rotate/revoke the exposed credentials immediately, add .env to .gitignore, and scrub the file from Git commit history",
-          "Rename .env to config.txt",
-          "Make the repository private and leave the credentials as-is"
-        ],
-        answer: 1,
-        explanation: "Simply deleting a file in a new commit leaves the credentials accessible in previous commit history. Secrets must be rotated immediately and purged from history."
-      },
-      {
-        id: "DEV-5",
-        question: "What does HTTP status code '403 Forbidden' signify compared to '401 Unauthorized'?",
-        options: [
-          "403 means the server crashed; 401 means the page moved permanently",
-          "401 means the client is unauthenticated (missing/invalid login token), whereas 403 means the server knows who the user is, but they lack permission for that resource",
-          "Both mean the API endpoint does not exist",
-          "403 means too many requests were sent"
-        ],
-        answer: 1,
-        explanation: "401 indicates an authentication failure, while 403 indicates an authorization failure (authenticated user lacks required role/privileges)."
-      },
-      {
-        id: "DEV-6",
-        question: "Review the JavaScript snippet below. What will be logged to the console, and why?",
-        snippet: "const items = [10, 20, 30];
-const result = items.map(num => {
-  num * 2;
-});
-console.log(result);",
-        options: [
-          "[20, 40, 60]",
-          "[undefined, undefined, undefined] because the arrow function uses curly braces {} without an explicit 'return' statement",
-          "[10, 20, 30]",
-          "SyntaxError"
-        ],
-        answer: 1,
-        explanation: "In JavaScript arrow functions, using block braces {} requires an explicit 'return' keyword; otherwise, the function implicitly returns undefined."
-      },
-      {
-        id: "DEV-7",
-        question: "In a multi-developer ICTMS team using Git, what is the cleanest way to integrate completed work from a feature branch into 'main' while preserving code review quality?",
-        options: [
-          "Force-push directly to main using 'git push -f'",
-          "Open a Pull Request / Merge Request (PR/MR) to trigger automated tests and peer code review before merging",
-          "Zip the source folder and email it to the team lead",
-          "Edit code directly on the production server via FTP"
-        ],
-        answer: 1,
-        explanation: "Pull/Merge Requests enforce peer review, CI/CD checks, and an auditable change history before code reaches production."
-      },
-      {
-        id: "DEV-8",
-        question: "How do you prevent Cross-Site Scripting (XSS) when rendering user-submitted comments on a web portal?",
-        options: [
-          "Disable CSS stylesheets",
-          "Contextually escape/encode HTML output and sanitize rich text inputs before rendering in the DOM",
-          "Increase the session timeout",
-          "Use GET requests instead of POST"
-        ],
-        answer: 1,
-        explanation: "Output encoding converts special characters like < and > into safe HTML entities (&lt;, &gt;) so browsers treat them as text rather than executable scripts."
-      },
-      {
-        id: "DEV-9",
-        question: "Which HTTP method is defined as 'idempotent'—meaning making the exact same request multiple times produces the same server state as making it once?",
-        options: ["POST", "PUT", "PATCH (non-atomic)", "CONNECT"],
-        answer: 1,
-        explanation: "PUT replaces a resource at a target URI; repeating the identical PUT request yields the exact same resource state."
-      },
-      {
-        id: "DEV-10",
-        question: "Why is setting 'HttpOnly' and 'Secure' flags on authentication session cookies considered a mandatory web security practice?",
-        options: [
-          "It compresses cookies to save bandwidth",
-          "'HttpOnly' prevents JavaScript (document.cookie) from reading the session token during an XSS attack, and 'Secure' ensures the cookie is only transmitted over HTTPS",
-          "It allows cookies to be shared across unrelated domains",
-          "It prevents cookies from expiring"
-        ],
-        answer: 1,
-        explanation: "HttpOnly mitigates session hijacking via XSS, while Secure protects session tokens from interception over unencrypted HTTP."
-      }
-    ]
-  }
-];
+const TRACKS = [{"id": "helpdesk", "title": "Helpdesk & Technical Support", "code": "SUP", "description": "End-user troubleshooting, OS/M365 diagnostics, ticketing triage, and peripheral setup.", "questions": [{"id": "SUP-1", "question": "A user reports they cannot access internal intranet sites by hostname, but can successfully ping the server IP address. Running 'ipconfig /all' shows a valid IP and gateway. What command should you run first to resolve a stale local DNS cache?", "options": ["ipconfig /release", "ipconfig /flushdns", "netsh winsock reset", "chkdsk /f"], "answer": 1, "explanation": "Flushing the local DNS resolver cache clears outdated or corrupted DNS entries when IP connectivity works but hostname resolution fails."}, {"id": "SUP-2", "question": "Four tickets arrive simultaneously at 8:30 AM. Based on standard ITIL impact-urgency triage, which ticket should be prioritized first?", "options": ["A director requesting Adobe Acrobat Pro installation for next week's review", "An entire division (40+ users) unable to access the shared financial system during payroll cutoff", "A single user requesting a replacement ergonomic mouse", "A newly hired COS staff needing a secondary monitor setup"], "answer": 1, "explanation": "High business impact (40+ users blocked) combined with immediate urgency (payroll cutoff) makes this a Priority 1 (Critical) incident."}, {"id": "SUP-3", "question": "A Windows workstation displays an IP address of 169.254.112.45 and has no internet or LAN access. What does this APIPA address indicate?", "options": ["The PC is connected to a high-speed fiber VLAN", "The workstation failed to reach a DHCP server to obtain a valid IP lease", "The workstation has a duplicate static IP conflict", "Windows Firewall is blocking outbound HTTPS traffic"], "answer": 1, "explanation": "Automatic Private IP Addressing (169.254.0.0/16) is self-assigned by Windows when DHCP discovery fails due to a disconnected cable, wrong VLAN, or down DHCP service."}, {"id": "SUP-4", "question": "A user's print jobs are stuck in the Windows print queue and cannot be cancelled normally. What is the cleanest way to clear the stuck spooler?", "options": ["Reinstall Windows OS", "Stop the 'Print Spooler' service, delete files inside C:\\Windows\\System32\\spool\\PRINTERS, and restart the service", "Unplug the office router for 10 minutes", "Change the user's Active Directory password"], "answer": 1, "explanation": "Stopping the spooler service unlocks the stuck .spl/.shd files in the PRINTERS folder so they can be purged cleanly without rebooting."}, {"id": "SUP-5", "question": "When providing remote desktop assistance to an employee handling confidential HR records, what is mandatory before initiating screen control?", "options": ["Connect silently in the background so as not to disturb them", "Obtain explicit user consent and ask them to close/minimize confidential documents not related to the issue", "Ask the user to share their password via chat", "Disable endpoint antivirus before connecting"], "answer": 1, "explanation": "Explicit user authorization and data minimization protect sensitive personal information in compliance with RA 10173."}, {"id": "SUP-6", "question": "An employee's laptop shows 100% Disk usage in Task Manager immediately after boot, making applications unresponsive. Which step is most effective for initial diagnosis?", "options": ["Identify the specific process consuming Disk I/O in Resource Monitor and check SMART drive health / pending Windows Updates", "Format the hard drive immediately", "Replace the laptop battery", "Disable the network adapter"], "answer": 0, "explanation": "Checking Resource Monitor pinpoints whether SysMain, Windows Update, antivirus scans, or a failing HDD/SSD is causing the I/O bottleneck."}, {"id": "SUP-7", "question": "A user receives an Outlook error: 'The file cannot be accessed because it is in use by another process' when opening their local archive (.pst). What is the typical cause?", "options": ["The PST file is stored on a synced OneDrive folder or an orphaned OUTLOOK.EXE process is still running in the background", "The monitor refresh rate is set too high", "The keyboard layout is set to UK English", "The CMOS battery is dead"], "answer": 0, "explanation": "OneDrive file locking or a hung background Outlook process frequently locks local PST files."}, {"id": "SUP-8", "question": "Which Windows command-line utility scans and repairs corrupted Windows system files using a cached local component store?", "options": ["sfc /scannow", "ping -t", "net user", "gpresult /r"], "answer": 0, "explanation": "System File Checker (sfc /scannow) verifies the integrity of protected Windows system files and replaces corrupted versions."}, {"id": "SUP-9", "question": "A newly deployed network printer is reachable via ping, and drivers are installed, but print jobs fail. You notice the printer's IP changed after a power outage. How do you prevent this permanently?", "options": ["Reinstall the printer driver every morning", "Configure a DHCP reservation (MAC binding) or assign a static IP outside the DHCP pool", "Connect the printer via Bluetooth", "Disable IPv4 on the print server"], "answer": 1, "explanation": "Assigning a DHCP reservation or static IP guarantees consistent addressing for network printers."}, {"id": "SUP-10", "question": "What should always be documented before closing a resolved Helpdesk ticket?", "options": ["Only the word 'Fixed'", "Root cause identified, exact troubleshooting steps performed, and user confirmation that service is restored", "The user's plain-text password for future reference", "Nothing, closing the ticket is sufficient"], "answer": 1, "explanation": "Thorough resolution notes build the internal knowledge base and provide an audit trail for SLA compliance."}]}, {"id": "network", "title": "Network, Infra & Comms", "code": "NET", "description": "Subnetting, VLANs, routing/switching, wireless infrastructure, and cabling diagnostics.", "questions": [{"id": "NET-1", "question": "You need to subnet 192.168.10.0/24 into smaller networks that can each accommodate at least 28 usable host IP addresses. Which subnet mask should you use?", "options": ["/26 (255.255.255.192)", "/27 (255.255.255.224)", "/28 (255.255.255.240)", "/29 (255.255.255.248)"], "answer": 1, "explanation": "A /27 subnet provides 32 total IPs (30 usable hosts), satisfying the 28-host requirement while maximizing subnet count. A /28 only gives 14 usable hosts."}, {"id": "NET-2", "question": "Two hosts connected to the same Layer 2 switch are assigned to VLAN 10 and VLAN 20 respectively. They cannot ping each other. What network device or feature is required for them to communicate?", "options": ["A crossover Ethernet cable between two switch ports", "A Layer 3 routing device (Router-on-a-Stick or Layer 3 SVI) configured for Inter-VLAN routing", "Enabling Spanning Tree Protocol (STP)", "Increasing the MTU size to 9000"], "answer": 1, "explanation": "VLANs isolate broadcast domains at Layer 2; traffic between different VLANs must be routed at Layer 3."}, {"id": "NET-3", "question": "Review the traceroute output below from a workstation (10.10.5.25) trying to reach an agency cloud server (203.177.45.10). Where is the connectivity failing?", "snippet": "1   <1 ms   <1 ms   <1 ms  10.10.5.1\n2    2 ms    2 ms    3 ms  172.16.0.1\n3    *       *       *     Request timed out.\n4    *       *       *     Request timed out.", "options": ["The workstation's local NIC is disconnected", "The local default gateway (10.10.5.1) is down", "Traffic reaches the internal core/edge router (172.16.0.1) but is dropped or unrouted beyond Hop 2 (ISP/Firewall)", "DNS resolution failed on the workstation"], "answer": 2, "explanation": "Hops 1 and 2 respond with low latency, proving LAN and internal gateway health; timeouts starting at Hop 3 point to the ISP link or edge firewall policy."}, {"id": "NET-4", "question": "What is the primary purpose of an 802.1Q trunk port between two managed switches?", "options": ["To double the physical bandwidth using PoE", "To carry traffic for multiple VLANs simultaneously over a single physical link using VLAN tags", "To block all broadcast traffic automatically", "To convert single-mode fiber to multimode fiber"], "answer": 1, "explanation": "IEEE 802.1Q inserts a 4-byte VLAN tag into Ethernet frames so multiple VLANs can traverse an uplink between switches."}, {"id": "NET-5", "question": "A technician accidentally connects both ends of a patch cable into two access ports on the same unmanaged switch, causing severe network slowdown and blinking LEDs across all ports. What occurred?", "options": ["A Layer 2 switching loop causing a broadcast storm", "BGP route flapping", "DHCP pool exhaustion", "ARP spoofing attack"], "answer": 0, "explanation": "Without STP enabled, a physical loop causes Ethernet broadcast frames to circulate endlessly, saturating switch CPU and link bandwidth."}, {"id": "NET-6", "question": "In structured cabling, what is the maximum recommended horizontal channel length for standard Cat6 Ethernet copper cabling to maintain full 1 Gbps / 10 Gbps performance?", "options": ["50 meters", "100 meters (90m permanent link + 10m patch cords)", "300 meters", "550 meters"], "answer": 1, "explanation": "TIA/EIA-568 standards specify 100 meters total channel length for twisted-pair copper before signal attenuation causes packet loss."}, {"id": "NET-7", "question": "When deploying enterprise Wi-Fi Access Points in the 2.4 GHz band, which three channels should be used to avoid co-channel overlap?", "options": ["Channels 1, 2, and 3", "Channels 1, 6, and 11", "Channels 3, 7, and 10", "Channels 2, 5, and 8"], "answer": 1, "explanation": "Channels 1, 6, and 11 are the only non-overlapping 20 MHz channels in the 2.4 GHz spectrum."}, {"id": "NET-8", "question": "Which protocol dynamically assigns IP addresses, subnet masks, default gateways, and DNS servers to client devices?", "options": ["SNMP", "DHCP", "ICMP", "NTP"], "answer": 1, "explanation": "Dynamic Host Configuration Protocol (DHCP) automates IP configuration via the DORA (Discover, Offer, Request, Acknowledge) process."}, {"id": "NET-9", "question": "You are connecting two buildings located 450 meters apart across a government compound. Which cabling medium is the appropriate engineering choice?", "options": ["Unshielded Cat5e copper cable", "Single-mode or Multimode Fiber Optic cable", "Coaxial RG-6 cable", "USB 3.0 active repeater cable"], "answer": 1, "explanation": "Copper Ethernet is limited to 100 meters; fiber optic cable easily spans 450+ meters with immunity to electromagnetic interference."}, {"id": "NET-10", "question": "Which command on a Cisco-style switch displays the mapping between MAC addresses, VLANs, and physical switch ports?", "options": ["show ip route", "show mac address-table", "show version", "show ntp status"], "answer": 1, "explanation": "The MAC address table (CAM table) identifies which physical interface a specific device MAC address is learned on."}]}, {"id": "firewall", "title": "Firewall & Information Security", "code": "SEC", "description": "Firewall rules, NAT/VPN, log analysis, vulnerability management, and incident response.", "questions": [{"id": "SEC-1", "question": "Analyze the firewall traffic log below. What type of activity is occurring from source IP 185.220.101.4?", "snippet": "2026-11-10 02:14:01 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=22 ACTION=DROP\n2026-11-10 02:14:02 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=23 ACTION=DROP\n2026-11-10 02:14:03 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=3389 ACTION=DROP\n2026-11-10 02:14:04 SRC=185.220.101.4 DST=202.90.134.12 PROTO=TCP DPT=445 ACTION=DROP", "options": ["Normal web browsing traffic", "Automated external port reconnaissance probing common remote management/SMB ports (SSH, Telnet, RDP, SMB)", "Internal backup replication", "NTP time synchronization"], "answer": 1, "explanation": "Sequential connection attempts across ports 22, 23, 3389, and 445 indicate automated port scanning for exposed management services."}, {"id": "SEC-2", "question": "How does a 'Stateful' firewall differ from a traditional 'Stateless' packet filter?", "options": ["Stateful firewalls only inspect Layer 1 electrical signals", "Stateful firewalls track active connection states in a state table and automatically permit legitimate return traffic", "Stateless firewalls block all encrypted HTTPS traffic", "Stateful firewalls do not require access control rules"], "answer": 1, "explanation": "Stateful inspection tracks TCP/UDP session states, eliminating the need to write broad inbound rules for ephemeral return ports."}, {"id": "SEC-3", "question": "You need to connect the ICTMS Central Office firewall to a Regional Office firewall securely over the public internet so internal subnets can communicate seamlessly. Which VPN technology is standard?", "options": ["Site-to-Site IPsec VPN", "PPTP VPN without encryption", "Public HTTP proxy", "Telnet tunnel"], "answer": 0, "explanation": "Site-to-Site IPsec VPN establishes an encrypted tunnel between gateway firewalls to connect branch LANs securely."}, {"id": "SEC-4", "question": "Why should a public-facing web server be placed inside a DMZ (Demilitarized Zone) rather than directly inside the internal LAN?", "options": ["To give the web server faster internet speeds", "To isolate public-facing services so that if the web server is compromised, attackers cannot directly pivot to internal databases and workstations", "Because firewalls cannot route traffic to internal LANs", "To bypass SSL/TLS certificate requirements"], "answer": 1, "explanation": "A DMZ acts as a segmented buffer zone with strict firewall rules restricting traffic between the DMZ and the trusted internal network."}, {"id": "SEC-5", "question": "Which security mechanism translates multiple private internal IP addresses (e.g., 10.0.0.0/24) into a single public IP address using unique source port numbers?", "options": ["Static 1:1 NAT", "PAT (Port Address Translation / NAT Overload)", "DNSSEC", "ARP Inspection"], "answer": 1, "explanation": "PAT maps multiple private hosts to one public IP by tracking unique source TCP/UDP port numbers in the translation table."}, {"id": "SEC-6", "question": "According to the NIST Incident Response Lifecycle, what is the correct sequence of phases when handling a confirmed malware outbreak?", "options": ["Eradication -> Preparation -> Detection -> Recovery", "Preparation -> Detection & Analysis -> Containment, Eradication & Recovery -> Post-Incident Activity", "Recovery -> Containment -> Lessons Learned -> Detection", "Detection -> Public Press Release -> Reformatting"], "answer": 1, "explanation": "NIST SP 800-61 defines Preparation, Detection & Analysis, Containment/Eradication/Recovery, and Post-Incident Activity."}, {"id": "SEC-7", "question": "What is the key operational difference between an IDS (Intrusion Detection System) and an IPS (Intrusion Prevention System)?", "options": ["IDS is passive and generates alerts, whereas IPS sits inline and can actively block/drop malicious traffic in real time", "IDS encrypts hard drives, while IPS manages passwords", "IDS works only on Wi-Fi, while IPS works only on fiber", "There is no difference"], "answer": 0, "explanation": "An IPS is deployed inline with traffic flow so it can drop malicious packets or reset connections immediately upon signature/anomaly match."}, {"id": "SEC-8", "question": "In firewall rule ordering (top-down evaluation), where should the explicit 'Deny All / Implicit Cleanup' rule be placed?", "options": ["At the very top (Rule #1)", "At the very bottom of the rulebase after all specific Permit rules", "Between internal LAN rules and VPN rules", "It is not needed on modern firewalls"], "answer": 1, "explanation": "Firewalls evaluate rules sequentially from top to bottom; placing Deny All at the bottom ensures any traffic not explicitly permitted is dropped and logged."}, {"id": "SEC-9", "question": "An internal workstation is observed making repeated DNS queries to randomly generated, nonsensical domain names (e.g., xk92jf81m.biz) every 30 seconds. What does this behavior strongly indicate?", "options": ["Normal Windows Update behavior", "Malware using a Domain Generation Algorithm (DGA) to contact a Command-and-Control (C2) server", "A misconfigured network printer", "NTP clock drift"], "answer": 1, "explanation": "DGAs generate pseudo-random domains so infected hosts can locate C2 infrastructure even when static domains are sinkholed."}, {"id": "SEC-10", "question": "Which security control adds an extra layer of verification beyond username and password for administrative VPN and firewall logins?", "options": ["Multi-Factor Authentication (MFA)", "Split Tunneling", "MAC Address Cloning", "HTTP Basic Auth"], "answer": 0, "explanation": "MFA protects privileged remote access even if a user's password is compromised via phishing or credential stuffing."}]}, {"id": "servers", "title": "Servers & Systems Administration", "code": "SYS", "description": "VM provisioning, Windows/Linux servers, Active Directory, and Veeam Backup & Replication.", "questions": [{"id": "SYS-1", "question": "In Veeam Backup & Replication, what is the primary purpose of enabling 'Application-Aware Image Processing' (AAIP) via Microsoft VSS when backing up a Windows Server running Active Directory or SQL Server?", "options": ["It compresses the VMDK/VHDX file by 90% before transfer", "It quiesces the application and database transactions in memory to ensure a transactionally consistent backup and truncates transaction logs safely", "It converts a physical server into a Linux container", "It bypasses the need for Changed Block Tracking (CBT)"], "answer": 1, "explanation": "Application-Aware Processing uses Volume Shadow Copy Service (VSS) to flush pending I/O to disk, ensuring consistent AD/SQL recovery without database corruption, and handles log truncation."}, {"id": "SYS-2", "question": "A critical production VM crashes due to an OS corruption after a patch, and the agency requires the service restored within 5 minutes (low RTO). Which Veeam feature allows you to boot the VM directly from the compressed backup file on the backup repository?", "options": ["Full VM Restore to a new datastore", "Instant VM Recovery (followed by Storage vMotion / Quick Migration to production storage)", "Backup Copy Job to tape", "SureBackup Verification"], "answer": 1, "explanation": "Instant VM Recovery mounts the backup image directly via vPower NFS / Hyper-V mount so the VM powers on in minutes while production storage migration happens transparently in the background."}, {"id": "SYS-3", "question": "To protect agency backups against ransomware attacks that compromise domain administrator credentials, Veeam recommends the '3-2-1-1-0' rule. What do the extra '1' and '0' stand for?", "options": ["1 cloud provider and 0 tape drives", "1 copy stored offline, air-gapped, or immutable (e.g., Linux Hardened Repository), and 0 unverified backup errors via automated testing", "1 full backup per year and 0 incremental backups", "1 backup admin and 0 alerts"], "answer": 1, "explanation": "The '1' requires an immutable or air-gapped copy that cannot be deleted/encrypted even by compromised admins, and '0' requires zero errors verified through SureBackup recovery testing."}, {"id": "SYS-4", "question": "How does Veeam's 'SureBackup' automatically verify that a VM backup is actually recoverable without affecting the live production network?", "options": ["It overwrites the live production VM every night", "It powers on the VM from the backup file inside an isolated Virtual Lab (isolated network) and runs heartbeat, ping, and application script tests", "It only checks the MD5 checksum of the .vbk file header", "It emails the backup file to the system administrator"], "answer": 1, "explanation": "SureBackup spins up VMs inside a sandboxed Virtual Lab with masqueraded networking, validates OS boot, VMware/Hyper-V heartbeat, network ping, and service ports, then tears down the lab."}, {"id": "SYS-5", "question": "When configuring a Veeam Backup Job using 'Forever Forward Incremental' mode with a 14-day retention policy, what happens on Day 15 when a new incremental (.vib) backup completes?", "options": ["Veeam creates a brand-new full backup (.vbk) from scratch", "Veeam merges (injects) the oldest incremental (.vib) data blocks into the existing full backup (.vbk) and deletes that oldest .vib file", "The backup job stops and fails due to retention limit", "All previous 14 days of backups are deleted"], "answer": 1, "explanation": "Forever Forward Incremental maintains a single .vbk file and rolls the oldest .vib into the .vbk once retention is exceeded, saving storage space compared to periodic active fulls."}, {"id": "SYS-6", "question": "What is the role of 'Changed Block Tracking' (CBT) in VMware vSphere or Resilient Change Tracking (RCT) in Hyper-V during Veeam incremental backups?", "options": ["It encrypts traffic between the Veeam Backup Server and Proxy", "It tracks disk sectors modified since the last backup so Veeam reads only changed blocks instead of scanning the entire virtual disk", "It balances CPU load across ESXi hosts", "It automatically provisions new vCPUs when load spikes"], "answer": 1, "explanation": "CBT/RCT eliminates full-disk reads during incremental runs, drastically reducing backup window duration and storage I/O."}, {"id": "SYS-7", "question": "You are provisioning a new Windows Server VM for an agency database using a standardized VM template. After cloning the VM and joining it to the Active Directory domain, WSUS reports duplicate client entries and authentication glitches occur. What post-cloning step was missed?", "options": ["Disabling Windows Defender Firewall", "Running Sysprep (/generalize) to reset the unique Security Identifier (SID) and WSUS/machine ID before domain join", "Changing the virtual NIC from VMXNET3 to E1000", "Increasing the swap file size to 64 GB"], "answer": 1, "explanation": "Cloning a live Windows OS without Sysprep /generalize leaves duplicate machine SIDs and WSUS IDs, causing domain trust and patch management conflicts."}, {"id": "SYS-8", "question": "When provisioning virtual disks (VMDK/VHDX) for a high-transaction production database server (e.g., PostgreSQL / MS SQL), which disk provisioning type provides the best write performance and prevents sudden datastore overcommitment outages?", "options": ["Thin Provisioned disk", "Thick Provisioned Eager Zeroed (or Fixed-Size VHDX)", "Linked Clone differential disk", "ISO mounted read-only disk"], "answer": 1, "explanation": "Thick Provisioned Eager Zeroed pre-allocates and zeroes out all storage blocks upfront, avoiding runtime zeroing latency and preventing datastore exhaustion."}, {"id": "SYS-9", "question": "In Veeam Backup & Replication architecture, which component is responsible for retrieving VM data from production storage, compressing/deduplicating it, and sending it to the repository?", "options": ["Veeam Backup Proxy (Data Mover)", "Veeam Enterprise Manager Web UI", "Active Directory DNS Server", "WSUS Update Server"], "answer": 0, "explanation": "The Backup Proxy acts as the data mover that offloads compression, deduplication, and transport (Direct SAN, HotAdd, or NBD) from the main Veeam Backup Server."}, {"id": "SYS-10", "question": "You are provisioning a new Linux (Ubuntu/RHEL) application server in production. Before handing it over to the development team, which baseline server hardening step should you complete?", "options": ["Enable password-based SSH login for the 'root' user", "Disable direct root SSH login, enforce SSH key-based authentication, configure host firewall (ufw/firewalld) for required ports only, and apply latest security patches", "Set all application directories to chmod 777", "Disable SELinux / AppArmor permanently"], "answer": 1, "explanation": "Standard server provisioning hardening disables remote root login, uses SSH keys, enforces least-privilege firewall ports, and updates packages."}, {"id": "SYS-11", "question": "In Windows Active Directory, what is the standard evaluation order of Group Policy Objects (GPOs) applied to a newly provisioned server?", "options": ["OU -> Domain -> Site -> Local", "Local -> Site -> Domain -> Organizational Unit (LSDOU)", "Domain -> Local -> OU -> Site", "Site -> OU -> Local -> Domain"], "answer": 1, "explanation": "GPOs process in LSDOU order (Local, Site, Domain, OU), meaning policies linked to the Server's specific OU take precedence unless 'Enforced' is set higher up."}, {"id": "SYS-12", "question": "In a virtualized cluster (VMware vSphere / Hyper-V), why is leaving VM snapshots active for months in production strictly discouraged?", "options": ["Snapshots disable the VM's network adapter", "Snapshot delta files grow continuously, degrading disk I/O performance and risking datastore exhaustion during consolidation", "Snapshots automatically delete user accounts", "Snapshots prevent Veeam from running backups"], "answer": 1, "explanation": "VM snapshots are temporary point-in-time states for patching/upgrades; long-lived delta chains severely degrade storage latency."}, {"id": "SYS-13", "question": "When configuring GFS (Grandfather-Father-Son) long-term retention on a Veeam Backup Copy Job for agency compliance, what does GFS automate?", "options": ["Daily replication of VMs every 5 minutes", "Automatic flagging and retention of Weekly, Monthly, and Yearly full backup restore points without manually cloning jobs", "Automatic hardware firmware upgrades on ESXi hosts", "Conversion of VMs to AWS EC2 instances"], "answer": 1, "explanation": "GFS retention policies automatically preserve designated weekly, monthly, and yearly full backups for multi-year government audit compliance."}, {"id": "SYS-14", "question": "A newly provisioned VM is assigned to VLAN 30 on a host switch port, but it cannot obtain an IP address or ping its gateway (10.30.0.1). Other VMs on VLAN 30 on a different ESXi host work properly. What is the most likely infrastructure cause?", "options": ["The VM has too much vRAM allocated", "VLAN 30 is missing/untagged on the physical switch trunk uplink connected to that ESXi host's vSwitch", "The VM's virtual CD-ROM is disconnected", "NTP time is off by 2 seconds"], "answer": 1, "explanation": "If VMs on one host can reach the gateway while VMs on another host cannot, the physical switch trunk port for that host is likely missing the required 802.1Q VLAN tag."}, {"id": "SYS-15", "question": "Which Linux command checks the current running status and recent systemd logs of a provisioned Nginx or PostgreSQL service?", "options": ["systemctl status <service>", "chmod 777 <service>", "fdisk -l", "lsblk -f"], "answer": 0, "explanation": "'systemctl status <service>' displays active/failed state, PID, memory footprint, and recent journal entries."}]}, {"id": "database", "title": "Database Administration (DBA)", "code": "DBA", "description": "SQL queries, normalization, indexing, ACID transactions, and backup/recovery.", "questions": [{"id": "DBA-1", "question": "Review the SQL query below. What will it return?", "snippet": "SELECT d.dept_name, COUNT(e.emp_id) AS total_cos\nFROM departments d\nLEFT JOIN employees e ON d.dept_id = e.dept_id\nGROUP BY d.dept_name\nHAVING COUNT(e.emp_id) = 0;", "options": ["All departments that have at least 1 employee", "Only departments that currently have zero assigned employees", "A syntax error because HAVING cannot use COUNT()", "The total number of employees across all departments"], "answer": 1, "explanation": "LEFT JOIN preserves all departments even without matching employees, and HAVING COUNT(e.emp_id) = 0 filters strictly for empty departments."}, {"id": "DBA-2", "question": "What is the primary difference between a 'WHERE' clause and a 'HAVING' clause in SQL?", "options": ["WHERE filters rows before aggregation (GROUP BY), whereas HAVING filters grouped results after aggregation", "HAVING can only be used with DELETE statements", "WHERE is used for numbers and HAVING is used for text", "They are completely interchangeable"], "answer": 0, "explanation": "WHERE operates on individual rows prior to grouping, while HAVING filters aggregated groups produced by GROUP BY."}, {"id": "DBA-3", "question": "In database normalization, what requirement defines Third Normal Form (3NF)?", "options": ["All tables must have at least 3 columns", "The table is in 2NF and has no transitive dependencies (non-key attributes depend only on the primary key)", "All foreign keys are removed", "Data is denormalized into a single flat table for reporting"], "answer": 1, "explanation": "3NF eliminates transitive dependencies so non-prime attributes depend solely on the primary key, preventing update anomalies."}, {"id": "DBA-4", "question": "What does the 'A' (Atomicity) in ACID database transaction properties guarantee?", "options": ["All SQL queries run automatically every hour", "A transaction is treated as an all-or-nothing unit; either all operations commit or all roll back on failure", "Database tables are compressed automatically", "Only administrators can run SELECT queries"], "answer": 1, "explanation": "Atomicity prevents partial updates (e.g., debiting one account without crediting the destination) if an error or power failure occurs mid-transaction."}, {"id": "DBA-5", "question": "A reporting query filtering on 'employee_status' and 'hire_date' takes 18 seconds on a 5-million-row table. What is the first optimization step a DBA should evaluate?", "options": ["Delete half of the historical records", "Inspect the execution plan (EXPLAIN) and create a composite index on (employee_status, hire_date)", "Convert all VARCHAR columns to TEXT/BLOB", "Restart the database server every hour"], "answer": 1, "explanation": "Analyzing the execution plan identifies full table scans, and an appropriate index allows rapid B-tree index seeks."}, {"id": "DBA-6", "question": "What is the key operational difference between 'DELETE FROM audit_logs' and 'TRUNCATE TABLE audit_logs'?", "options": ["TRUNCATE removes all rows rapidly with minimal transaction log overhead and resets identity counters, while DELETE logs each row removal and allows a WHERE clause", "DELETE drops the table structure permanently", "TRUNCATE can be filtered using a WHERE clause", "There is no difference"], "answer": 0, "explanation": "TRUNCATE is a DDL operation that deallocates data pages quickly, whereas DELETE is a row-by-row DML operation."}, {"id": "DBA-7", "question": "Why is creating indexes on every single column of a heavily written transactional table discouraged?", "options": ["Indexes slow down SELECT queries", "Every INSERT, UPDATE, and DELETE must also update all associated indexes, increasing write latency and disk usage", "Databases only allow 2 indexes per database", "Indexes disable foreign key constraints"], "answer": 1, "explanation": "Indexes accelerate reads at the expense of additional I/O overhead during write operations."}, {"id": "DBA-8", "question": "Which backup strategy allows a DBA to restore a production database to a specific minute (e.g., 10:42 AM right before an accidental data wipe)?", "options": ["Point-in-Time Recovery (PITR) using a Full backup combined with Transaction Log / WAL backups", "Weekly CSV exports only", "Copying the database folder while the service is running", "Taking a screenshot of the schema"], "answer": 0, "explanation": "Replaying transaction logs (Write-Ahead Logs) on top of a base full backup enables exact Point-in-Time Recovery."}, {"id": "DBA-9", "question": "What is a database 'Deadlock'?", "options": ["When the database password expires", "When two or more transactions permanently block each other because each holds a lock the other needs to proceed", "When disk space reaches 50%", "When a table has no primary key"], "answer": 1, "explanation": "Database engines detect deadlocks and automatically terminate/rollback one victim transaction so the other can complete."}, {"id": "DBA-10", "question": "Which SQL constraint ensures that every value in a child table's column matches an existing value in a parent table's primary key?", "options": ["UNIQUE", "FOREIGN KEY", "CHECK", "DEFAULT"], "answer": 1, "explanation": "Foreign Key constraints enforce referential integrity between related tables."}]}, {"id": "developers", "title": "Information Systems & Developers", "code": "DEV", "description": "API design, secure coding (OWASP), Git workflows, debugging, and web architecture.", "questions": [{"id": "DEV-1", "question": "Identify the critical security vulnerability in the backend PHP/SQL snippet below:", "snippet": "$userId = $_GET['id'];\n$query = \"SELECT * FROM cos_profiles WHERE id = \" . $userId;\n$result = mysqli_query($conn, $query);", "options": ["Cross-Site Request Forgery (CSRF)", "SQL Injection (SQLi) due to direct concatenation of unsanitized user input into a SQL query", "Buffer Overflow", "Insecure Direct Object Reference (IDOR) only"], "answer": 1, "explanation": "Concatenating $_GET['id'] directly allows an attacker to inject arbitrary SQL commands. Prepared statements with parameterized queries must be used."}, {"id": "DEV-2", "question": "Which HTTP status code should a RESTful API return when a client submits invalid form fields (e.g., missing required email or malformed date)?", "options": ["200 OK", "400 Bad Request (or 422 Unprocessable Entity)", "500 Internal Server Error", "301 Moved Permanently"], "answer": 1, "explanation": "4xx status codes indicate client-side request/validation errors, whereas 500 indicates an unhandled server exception."}, {"id": "DEV-3", "question": "When storing user passwords in an agency information system database, which approach is considered secure industry standard?", "options": ["Encrypting passwords with AES-256 using a hardcoded key", "Hashing passwords using a slow, salted adaptive algorithm such as bcrypt or Argon2id", "Hashing passwords with unsalted MD5 or SHA-1", "Encoding passwords in Base64"], "answer": 1, "explanation": "Passwords must be one-way hashed with unique per-user salts using memory-hard/adaptive algorithms like Argon2id or bcrypt."}, {"id": "DEV-4", "question": "A developer accidentally committed a '.env' file containing production database credentials to a Git repository. What is the proper remediation?", "options": ["Delete the .env file in a new commit and push", "Rotate/revoke the exposed credentials immediately, add .env to .gitignore, and scrub the file from Git commit history", "Rename .env to config.txt", "Make the repository private and leave the credentials as-is"], "answer": 1, "explanation": "Simply deleting a file in a new commit leaves the credentials accessible in previous commit history. Secrets must be rotated immediately and purged from history."}, {"id": "DEV-5", "question": "What does HTTP status code '403 Forbidden' signify compared to '401 Unauthorized'?", "options": ["403 means the server crashed; 401 means the page moved permanently", "401 means the client is unauthenticated (missing/invalid login token), whereas 403 means the server knows who the user is, but they lack permission for that resource", "Both mean the API endpoint does not exist", "403 means too many requests were sent"], "answer": 1, "explanation": "401 indicates an authentication failure, while 403 indicates an authorization failure (authenticated user lacks required role/privileges)."}, {"id": "DEV-6", "question": "Review the JavaScript snippet below. What will be logged to the console, and why?", "snippet": "const items = [10, 20, 30];\nconst result = items.map(num => {\n  num * 2;\n});\nconsole.log(result);", "options": ["[20, 40, 60]", "[undefined, undefined, undefined] because the arrow function uses curly braces {} without an explicit 'return' statement", "[10, 20, 30]", "SyntaxError"], "answer": 1, "explanation": "In JavaScript arrow functions, using block braces {} requires an explicit 'return' keyword; otherwise, the function implicitly returns undefined."}, {"id": "DEV-7", "question": "In a multi-developer ICTMS team using Git, what is the cleanest way to integrate completed work from a feature branch into 'main' while preserving code review quality?", "options": ["Force-push directly to main using 'git push -f'", "Open a Pull Request / Merge Request (PR/MR) to trigger automated tests and peer code review before merging", "Zip the source folder and email it to the team lead", "Edit code directly on the production server via FTP"], "answer": 1, "explanation": "Pull/Merge Requests enforce peer review, CI/CD checks, and an auditable change history before code reaches production."}, {"id": "DEV-8", "question": "How do you prevent Cross-Site Scripting (XSS) when rendering user-submitted comments on a web portal?", "options": ["Disable CSS stylesheets", "Contextually escape/encode HTML output and sanitize rich text inputs before rendering in the DOM", "Increase the session timeout", "Use GET requests instead of POST"], "answer": 1, "explanation": "Output encoding converts special characters like < and > into safe HTML entities (&lt;, &gt;) so browsers treat them as text rather than executable scripts."}, {"id": "DEV-9", "question": "Which HTTP method is defined as 'idempotent'\u2014meaning making the exact same request multiple times produces the same server state as making it once?", "options": ["POST", "PUT", "PATCH (non-atomic)", "CONNECT"], "answer": 1, "explanation": "PUT replaces a resource at a target URI; repeating the identical PUT request yields the exact same resource state."}, {"id": "DEV-10", "question": "Why is setting 'HttpOnly' and 'Secure' flags on authentication session cookies considered a mandatory web security practice?", "options": ["It compresses cookies to save bandwidth", "'HttpOnly' prevents JavaScript (document.cookie) from reading the session token during an XSS attack, and 'Secure' ensures the cookie is only transmitted over HTTPS", "It allows cookies to be shared across unrelated domains", "It prevents cookies from expiring"], "answer": 1, "explanation": "HttpOnly mitigates session hijacking via XSS, while Secure protects session tokens from interception over unencrypted HTTP."}]}];
 
 let state = {
   examineeName: "",
@@ -1720,6 +946,11 @@ function renderTracks() {
     card.addEventListener("click", () => {
       state.selectedTrackId = track.id;
       trackError.classList.add("hidden");
+      const totalQ = COMMON_CORE_QUESTIONS.length + track.questions.length;
+      const mins = totalQ >= 20 ? 30 : 25;
+      document.getElementById("specStructTitle").textContent = `Specialized Track Exam (${track.questions.length} Questions)`;
+      document.getElementById("statTotalItems").textContent = totalQ;
+      document.getElementById("statTimeLimit").textContent = `${mins}:00`;
       renderTracks();
     });
     trackGrid.appendChild(card);
@@ -1755,7 +986,8 @@ function startAssessment() {
   ];
   state.userAnswers = new Array(state.questions.length).fill(null);
   state.currentIndex = 0;
-  state.timeRemaining = 25 * 60;
+  state.examDurationSecs = (state.questions.length >= 20 ? 30 : 25) * 60;
+  state.timeRemaining = state.examDurationSecs;
   state.isSubmitted = false;
 
   examTrackBadge.textContent = track.title;
@@ -1883,7 +1115,7 @@ function finishAssessment(autoSubmitted = false) {
   const pct = Math.round((totalCorrect / total) * 100);
   const passed = pct >= 75;
 
-  const elapsedSecs = (25 * 60) - Math.max(0, state.timeRemaining);
+  const elapsedSecs = (state.examDurationSecs || 25 * 60) - Math.max(0, state.timeRemaining);
   const eMins = Math.floor(elapsedSecs / 60);
   const eSecs = elapsedSecs % 60;
 
@@ -1901,7 +1133,7 @@ function finishAssessment(autoSubmitted = false) {
   document.getElementById("resFractionDisplay").textContent = `${totalCorrect} out of ${total} items correct`;
 
   document.getElementById("resCoreScore").textContent = `${coreCorrect} / 5`;
-  document.getElementById("resSpecScore").textContent = `${specCorrect} / 10`;
+  document.getElementById("resSpecScore").textContent = `${specCorrect} / ${total - 5}`;
   document.getElementById("resTimeTaken").textContent = `${String(eMins).padStart(2, "0")}:${String(eSecs).padStart(2, "0")}`;
 
   const letters = ["A", "B", "C", "D"];
@@ -1950,6 +1182,41 @@ document.getElementById("retakeBtn").addEventListener("click", () => {
   resultScreen.classList.add("hidden");
   setupScreen.classList.remove("hidden");
   window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+
+// Disable right-click context menu
+document.addEventListener("contextmenu", function(e) {
+  e.preventDefault();
+});
+
+// Block common DevTools, View Source, Save, and Copy shortcuts
+document.addEventListener("keydown", function(e) {
+  if (e.key === "F12" || e.keyCode === 123) {
+    e.preventDefault();
+    return false;
+  }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && ["I", "J", "C", "i", "j", "c"].includes(e.key)) {
+    e.preventDefault();
+    return false;
+  }
+  if ((e.ctrlKey || e.metaKey) && ["u", "U", "s", "S"].includes(e.key)) {
+    e.preventDefault();
+    return false;
+  }
+  if (!state.isSubmitted && !examScreen.classList.contains("hidden")) {
+    if ((e.ctrlKey || e.metaKey) && ["c", "C", "a", "A", "p", "P"].includes(e.key)) {
+      e.preventDefault();
+      return false;
+    }
+  }
+});
+
+// Prevent copying during active exam
+document.addEventListener("copy", function(e) {
+  if (!state.isSubmitted && !examScreen.classList.contains("hidden")) {
+    e.preventDefault();
+  }
 });
 
 renderTracks();
